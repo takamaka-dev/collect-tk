@@ -36,7 +36,7 @@ public class CollectTKG {
     public static void main(String[] args) {
         long maxRange = 20000000000L;
         int availableProcessors = Runtime.getRuntime().availableProcessors();
-        int threadScale = availableProcessors * availableProcessors * availableProcessors * availableProcessors * availableProcessors;
+        int threadScale = availableProcessors * availableProcessors * availableProcessors * availableProcessors * availableProcessors * 8;
         System.out.println("Hello World!");
         log.info("hi");
         long curr = 0;
