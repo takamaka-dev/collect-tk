@@ -26,15 +26,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CollectTKG {
 
-    public static final String target = "000000";
+    public static final String target = "0000000";
     public static final long challengeID = 4235445L;
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-    public static final String challengeString = "gatto rosa 12";
+    public static final String challengeString = "suino bastardo 12";
 
     public static void main(String[] args) {
         long maxRange = 2000000000L;
         int availableProcessors = Runtime.getRuntime().availableProcessors();
-        int threadScale = availableProcessors * availableProcessors * 2;
+        int threadScale = availableProcessors * availableProcessors * availableProcessors;
         System.out.println("Hello World!");
         log.info("hi");
         long curr = 0;
