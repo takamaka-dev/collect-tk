@@ -20,7 +20,7 @@ import java.util.stream.LongStream;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- *
+ * git@github.com:takamaka-dev/collect-tk.git
  * @author Giovanni Antino giovanni.antino@takamaka.io
  */
 @Slf4j
