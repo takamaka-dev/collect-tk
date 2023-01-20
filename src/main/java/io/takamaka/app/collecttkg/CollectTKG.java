@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import java.nio.CharBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.Date;
 import java.util.HexFormat;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * git@github.com:takamaka-dev/collect-tk.git
+ *
  * @author Giovanni Antino giovanni.antino@takamaka.io
  */
 @Slf4j
@@ -32,9 +34,9 @@ public class CollectTKG {
     public static final String challengeString = "suino bastardo 12";
 
     public static void main(String[] args) {
-        long maxRange = 2000000000L;
+        long maxRange = 20000000000L;
         int availableProcessors = Runtime.getRuntime().availableProcessors();
-        int threadScale = availableProcessors * availableProcessors * availableProcessors;
+        int threadScale = availableProcessors * availableProcessors * availableProcessors * availableProcessors * availableProcessors;
         System.out.println("Hello World!");
         log.info("hi");
         long curr = 0;
@@ -42,6 +44,7 @@ public class CollectTKG {
         ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
         final String post = "my_address" + challengeID + challengeString;
         do {
+            Date begin = new Date();
             LongStream.range(curr, curr + threadScale).parallel().forEach(i -> {
                 try {
                     byte[] hash256Byte = TkmSignUtils.Hash256Byte((i + post).getBytes(), FixedParameters.HASH_256_ALGORITHM);
@@ -55,6 +58,12 @@ public class CollectTKG {
                     log.error("ooooopz", ex);
                 }
             });
+            Date end = new Date();
+            long sec = (end.getTime() - begin.getTime()) / 1000;
+            if (sec == 0) {
+                sec = 1L;
+            }
+            log.info("pass/sec " + (threadScale / sec));
             curr += threadScale;
         } while (curr < maxRange & !killClausole.contains(Boolean.TRUE));
         log.info(sol.firstEntry().getValue());
