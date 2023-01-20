@@ -59,7 +59,7 @@ public class CollectTKG {
                 }
             });
             Date end = new Date();
-            long sec = (end.getTime() - begin.getTime()) / 1000;
+            double sec = ((double) (end.getTime() - begin.getTime())) / 1000;
             if (sec == 0) {
                 sec = 1L;
             }
