@@ -6,10 +6,6 @@ package io.takamaka.app.collecttkg;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import static io.takamaka.app.collecttkg.CollectTKG.challengeID;
-import static io.takamaka.app.collecttkg.CollectTKG.challengeString;
-import static io.takamaka.app.collecttkg.CollectTKG.fromBytesToHexString;
-import static io.takamaka.app.collecttkg.CollectTKG.target;
 import io.takamaka.app.collecttkg.bean.ChallengeResponseBean;
 import io.takamaka.app.collecttkg.utils.ProjectHelper;
 import io.takamaka.wallet.utils.FixedParameters;
@@ -21,17 +17,12 @@ import java.security.NoSuchProviderException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -41,13 +32,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MainFrame extends javax.swing.JFrame {
 
-    public static String difficulty = "000000";
-    public static long challengeID = 4235445L;
+    public static String difficulty;
+    public static long challengeID;
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-    public static String challengeString = "suino bastardo 12";
+    public static String challenge;
     private int selectedThreads = 1;
     private int availableProcessors = Runtime.getRuntime().availableProcessors();
     private int maxThreadScale = availableProcessors * availableProcessors * availableProcessors * availableProcessors * availableProcessors * 8;
+    private String target;
 
     /**
      * Creates new form MainFraine
@@ -209,7 +201,7 @@ public class MainFrame extends javax.swing.JFrame {
             });
             difficulty = crb.getDifficulty();
             challengeID = crb.getChallengeId();
-            challengeString = crb.getChallenge();
+            challenge = crb.getChallenge();
         } catch (ProtocolException ex) {
             Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -230,9 +222,9 @@ public class MainFrame extends javax.swing.JFrame {
         long curr = 0;
         ConcurrentSkipListSet<Boolean> killClausole = new ConcurrentSkipListSet<>();
         ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
-//        final String post = "B6bCu6Ee9ICmsF_6Lzfs5GlB_SPl3rjMXIIE2Bb1Lpg." + challengeID + challengeString;
-        final String post = challengeString;
-        log.info("challengString: " + challengeString);
+//        final String post = "B6bCu6Ee9ICmsF_6Lzfs5GlB_SPl3rjMXIIE2Bb1Lpg." + challengeID + challenge;
+        final String post = challenge;
+        log.info("challeng: " + challenge);
         do {
             Date begin = new Date();
             LongStream.range(curr, curr + threadScale).parallel().forEach((long i) -> {
@@ -244,7 +236,7 @@ public class MainFrame extends javax.swing.JFrame {
                     log.error("ooooopz", ex);
                 }
                 String fromBytesToHexString = fromBytesToHexString(hash256Byte);
-                if (fromBytesToHexString.startsWith(target)) {
+                if (fromBytesToHexString.startsWith(difficulty)) {
                     killClausole.add(Boolean.TRUE);
                     sol.put(i, fromBytesToHexString);
                 }
@@ -255,11 +247,22 @@ public class MainFrame extends javax.swing.JFrame {
             if (sec == 0) {
                 sec = 1L;
             }
-            log.info("pass/sec " + (threadScale / sec));
+            log.info("iterazioni al secondo " + (threadScale / sec));
             curr += threadScale;
         } while (curr < maxRange & !killClausole.contains(Boolean.TRUE));
-        log.info(sol.firstEntry().getValue());
-        log.info(sol.firstEntry().getKey() + "");
+        Map<String, String> parameters = new HashMap<>();
+            parameters.put("challengeID", String.valueOf(challengeID));
+            parameters.put("walletAddress", "B6bCu6Ee9ICmsF_6Lzfs5GlB_SPl3rjMXIIE2Bb1Lpg.");
+            parameters.put("challenge", challenge);
+            parameters.put("interoSoluzione", sol.firstEntry().getKey() + "");
+        try {
+            String get = ProjectHelper.doPost(
+                    "http://192.168.2.44:8080/checkresult", parameters);
+                    log.info(get);
+        } catch (IOException ex) {
+            log.error(ex.getLocalizedMessage());
+        }
+        log.info("Iterazioni eseguite " + sol.firstEntry().getKey() + " per trovare la soluzione " + sol.firstEntry().getValue());
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
