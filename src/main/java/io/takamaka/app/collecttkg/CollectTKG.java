@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CollectTKG {
 
-    public static final String target = "0000000";
+    public static final String target = "000000";
     public static final long challengeID = 4235445L;
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     public static final String challengeString = "suino bastardo 12";
@@ -37,8 +37,6 @@ public class CollectTKG {
         long maxRange = 20000000000L;
         int availableProcessors = Runtime.getRuntime().availableProcessors();
         int threadScale = availableProcessors * availableProcessors * availableProcessors * availableProcessors * availableProcessors * 8;
-        System.out.println("Hello World!");
-        log.info("hi");
         long curr = 0;
         ConcurrentSkipListSet<Boolean> killClausole = new ConcurrentSkipListSet<>();
         ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
