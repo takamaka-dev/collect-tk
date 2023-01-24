@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
@@ -40,12 +42,16 @@ public class MainFrame extends javax.swing.JFrame {
     private int availableProcessors = Runtime.getRuntime().availableProcessors();
     public static ConcurrentSkipListSet<Boolean> killClausole = new ConcurrentSkipListSet<>();
     public static MainFrame mainFrame;
-
+    private static final ConcurrentSkipListSet<Boolean> buttonKill = new ConcurrentSkipListSet<>();
+    private static AtomicInteger numOfThreads = new AtomicInteger();
+    
     /**
      * Creates new form MainFraine
      */
     public MainFrame() {
         initComponents();
+        numOfThreads.set(Runtime.getRuntime().availableProcessors());
+        
     }
 
     /**
@@ -212,7 +218,8 @@ public class MainFrame extends javax.swing.JFrame {
 
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        killClausole.add(Boolean.TRUE);
+        buttonKill.add(Boolean.TRUE);
+
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
@@ -225,7 +232,7 @@ public class MainFrame extends javax.swing.JFrame {
             Map<String, String> parameters = new HashMap<>();
             parameters.put("walletAddress", walletAddress);
             String get = ProjectHelper.doPost(
-                    "http://192.168.2.143:8080/requirechallenge", parameters);
+                    "http://192.168.2.44:8080/requirechallenge", parameters);
             ObjectMapper mapper = new ObjectMapper();
             ChallengeResponseBean crb = mapper.readValue(get, new TypeReference<ChallengeResponseBean>() {
             });
@@ -244,7 +251,8 @@ public class MainFrame extends javax.swing.JFrame {
         long maxRange = 20000000000L;
         //--da inserire nello slider
         System.out.println("availableProcessors:" + availableProcessors);
-        final int threadScale = availableProcessors * availableProcessors * availableProcessors * availableProcessors * availableProcessors * 8;;
+        
+        final int threadScale = availableProcessors * availableProcessors * availableProcessors * availableProcessors * availableProcessors * 8;
         //--//
         ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
 //        final String post = "B6bCu6Ee9ICmsF_6Lzfs5GlB_SPl3rjMXIIE2Bb1Lpg." + challengeID + challenge;
@@ -254,8 +262,10 @@ public class MainFrame extends javax.swing.JFrame {
             @Override
             public void run() {
                 long curr = 0;
+                ForkJoinPool fjp = new ForkJoinPool(numOfThreads.get());
+                
                 do {
-
+                    
                     Date begin = new Date();
                     LongStream.range(curr, curr + threadScale).parallel().forEach((long i) -> {
 
@@ -284,29 +294,37 @@ public class MainFrame extends javax.swing.JFrame {
                     mainFrame.repaint();
 
                     curr += threadScale;
-                } while (curr < maxRange & !killClausole.contains(Boolean.TRUE));
-                Map<String, String> parameters = new HashMap<>();
-                parameters.put("challengeID", String.valueOf(challengeID));
-                parameters.put("walletAddress", walletAddress);
-                parameters.put("challenge", challenge);
-                parameters.put("interoSoluzione", sol.firstEntry().getKey() + "");
-                try {
-                    String get = ProjectHelper.doPost(
-                            "http://192.168.2.143:8080/checkresult", parameters);
-                    log.info(get);
-                } catch (IOException ex) {
-                    log.error(ex.getLocalizedMessage());
+                } while (curr < maxRange & !killClausole.contains(Boolean.TRUE) & !buttonKill.contains(Boolean.TRUE));
+                if (!buttonKill.contains(Boolean.TRUE)) {
+                    Map<String, String> parameters = new HashMap<>();
+                    parameters.put("challengeID", String.valueOf(challengeID));
+                    parameters.put("walletAddress", walletAddress);
+                    parameters.put("challenge", challenge);
+                    parameters.put("interoSoluzione", sol.firstEntry().getKey() + "");
+                    try {
+                        String get = ProjectHelper.doPost(
+                                "http://192.168.2.44:8080/checkresult", parameters);
+                        log.info(get);
+                    } catch (IOException ex) {
+                        log.error(ex.getLocalizedMessage());
+                    }
+                    log.info("Iterazioni eseguite " + sol.firstEntry().getKey() + " per trovare la soluzione " + sol.firstEntry().getValue());
+                } else {
+                    log.info("Stop by user action");
                 }
-                log.info("Iterazioni eseguite " + sol.firstEntry().getKey() + " per trovare la soluzione " + sol.firstEntry().getValue());
+                
                 sol.clear();
                 killClausole.clear();
+                buttonKill.clear();
             }
         }).start();
 
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
-        availableProcessors = jSlider1.getValue();
+        //availableProcessors = jSlider1.getValue();
+        numOfThreads.set(jSlider1.getValue());
+        log.info("Num of threads set by user: " + numOfThreads.get());
     }//GEN-LAST:event_jSlider1StateChanged
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
