@@ -212,18 +212,19 @@ public class MainFrame extends javax.swing.JFrame {
         walletAddress = jTextField1.getText();
         System.out.println("text: " + walletAddress);
         jButton7.setEnabled(true);
-        jButton5.setEnabled(true);
         jButton4.setEnabled(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         buttonKill.add(Boolean.TRUE);
-
+        jButton7.setEnabled(true);
+        jButton5.setEnabled(false);
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-
+        jButton7.setEnabled(false);
+        jButton5.setEnabled(true);
         /*
             Require a challenge from server
 
