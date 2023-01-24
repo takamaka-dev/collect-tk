@@ -272,7 +272,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void jButtonStopMiningActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStopMiningActionPerformed
         buttonKill.add(Boolean.TRUE);
         jButtonStartMining.setEnabled(true);
-        jCheckBoxContinueMining.setSelected(!continueMining.get());
+        jCheckBoxContinueMining.setSelected(false);
     }//GEN-LAST:event_jButtonStopMiningActionPerformed
 
     private void jButtonStartMiningActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStartMiningActionPerformed
