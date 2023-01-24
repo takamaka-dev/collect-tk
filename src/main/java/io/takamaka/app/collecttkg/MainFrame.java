@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -44,14 +45,14 @@ public class MainFrame extends javax.swing.JFrame {
     public static MainFrame mainFrame;
     private static final ConcurrentSkipListSet<Boolean> buttonKill = new ConcurrentSkipListSet<>();
     private static AtomicInteger numOfThreads = new AtomicInteger();
-    
+
     /**
      * Creates new form MainFraine
      */
     public MainFrame() {
         initComponents();
         numOfThreads.set(Runtime.getRuntime().availableProcessors());
-        
+
     }
 
     /**
@@ -93,7 +94,7 @@ public class MainFrame extends javax.swing.JFrame {
         jSlider1.setPaintLabels(true);
         jSlider1.setPaintTicks(true);
         jSlider1.setSnapToTicks(true);
-        jSlider1.setValue(Runtime.getRuntime().availableProcessors()/2);
+        jSlider1.setValue(Runtime.getRuntime().availableProcessors());
         jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jSlider1StateChanged(evt);
@@ -252,8 +253,12 @@ public class MainFrame extends javax.swing.JFrame {
         long maxRange = 20000000000L;
         //--da inserire nello slider
         System.out.println("availableProcessors:" + availableProcessors);
-        
-        final int threadScale = availableProcessors * availableProcessors * availableProcessors * availableProcessors * availableProcessors * 8;
+
+        final int threadScale = availableProcessors * 
+                availableProcessors *
+                availableProcessors * 
+                availableProcessors *
+                availableProcessors * 8;
         //--//
         ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
 //        final String post = "B6bCu6Ee9ICmsF_6Lzfs5GlB_SPl3rjMXIIE2Bb1Lpg." + challengeID + challenge;
@@ -264,38 +269,51 @@ public class MainFrame extends javax.swing.JFrame {
             public void run() {
                 long curr = 0;
                 ForkJoinPool fjp = new ForkJoinPool(numOfThreads.get());
-                
+
                 do {
-                    
-                    Date begin = new Date();
-                    LongStream.range(curr, curr + threadScale).parallel().forEach((long i) -> {
+                    try {
+                        Date begin = new Date();
+                        final LongStream range = LongStream.range(curr, curr + threadScale);
+                        fjp.submit(() -> {
+                            range.parallel().forEach((long i) -> {
 
-                        byte[] hash256Byte = {};
-                        try {
-                            hash256Byte = TkmSignUtils.Hash256Byte((i + post).getBytes(), FixedParameters.HASH_256_ALGORITHM);
-                        } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
-                            log.error("ooooopz", ex);
-                        }
-                        String fromBytesToHexString = fromBytesToHexString(hash256Byte);
-                        if (fromBytesToHexString.startsWith(difficulty)) {
-                            killClausole.add(Boolean.TRUE);
-                            sol.put(i, fromBytesToHexString);
+                                byte[] hash256Byte = {};
+                                try {
+                                    hash256Byte = TkmSignUtils.Hash256Byte((i + post).getBytes(), FixedParameters.HASH_256_ALGORITHM);
+                                } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
+                                    log.error("ooooopz", ex);
+                                }
+                                String fromBytesToHexString = fromBytesToHexString(
+                                        hash256Byte);
+                                if (fromBytesToHexString.startsWith(difficulty)) {
+                                    killClausole.add(Boolean.TRUE);
+                                    sol.put(i, fromBytesToHexString);
+                                }
+
+                            });
+                        }).get();
+
+                        Date end = new Date();
+                        double sec = ((double) (end.getTime() - begin.getTime())) / 1000;
+                        if (sec == 0) {
+                            sec = 1L;
                         }
 
-                    });
-                    Date end = new Date();
-                    double sec = ((double) (end.getTime() - begin.getTime())) / 1000;
-                    if (sec == 0) {
-                        sec = 1L;
+                        jTextField2.setText(Math.round(threadScale / sec) + "");
+                        mainFrame.invalidate();
+                        mainFrame.validate();
+                        mainFrame.repaint();
+
+                        curr += threadScale;
+                    } catch (InterruptedException | ExecutionException ex) {
+                        Logger.getLogger(
+                                MainFrame.class.getName())
+                                .log(Level.SEVERE, null, ex);
                     }
 
-                    jTextField2.setText(Math.round(threadScale / sec) + "");
-                    mainFrame.invalidate();
-                    mainFrame.validate();
-                    mainFrame.repaint();
-
-                    curr += threadScale;
-                } while (curr < maxRange & !killClausole.contains(Boolean.TRUE) & !buttonKill.contains(Boolean.TRUE));
+                } while (curr < maxRange &
+                        !killClausole.contains(Boolean.TRUE) &
+                        !buttonKill.contains(Boolean.TRUE));
                 if (!buttonKill.contains(Boolean.TRUE)) {
                     Map<String, String> parameters = new HashMap<>();
                     parameters.put("challengeID", String.valueOf(challengeID));
@@ -313,7 +331,7 @@ public class MainFrame extends javax.swing.JFrame {
                 } else {
                     log.info("Stop by user action");
                 }
-                
+
                 sol.clear();
                 killClausole.clear();
                 buttonKill.clear();
