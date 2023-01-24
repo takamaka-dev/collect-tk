@@ -41,23 +41,27 @@
                           <Component id="jButtonStopMining" min="-2" pref="159" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
-                      <Component id="jButtonVerifyButton" min="-2" pref="103" max="-2" attributes="0"/>
+                      <Component id="jButtonClaim" min="-2" pref="103" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="63" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="jLabel2" min="-2" pref="126" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jTextFieldWalletAddress" min="-2" pref="260" max="-2" attributes="0"/>
-                      <EmptySpace pref="175" max="32767" attributes="0"/>
-                      <Component id="jButton1" min="-2" pref="477" max="-2" attributes="0"/>
+                      <EmptySpace pref="22" max="32767" attributes="0"/>
+                      <Component id="jButtonVerifyAddress" min="-2" pref="477" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="jLabel3" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jSlider1" min="-2" pref="700" max="-2" attributes="0"/>
                   </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="jCheckBoxContinueMining" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
               </Group>
-              <EmptySpace min="-2" pref="205" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -68,7 +72,7 @@
               <Group type="103" groupAlignment="1" max="-2" attributes="0">
                   <Component id="jLabel2" alignment="0" pref="38" max="32767" attributes="0"/>
                   <Component id="jTextFieldWalletAddress" alignment="1" max="32767" attributes="0"/>
-                  <Component id="jButton1" alignment="1" max="32767" attributes="0"/>
+                  <Component id="jButtonVerifyAddress" alignment="1" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -78,10 +82,12 @@
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace min="-2" pref="98" max="-2" attributes="0"/>
-                      <Component id="jButtonVerifyButton" min="-2" pref="55" max="-2" attributes="0"/>
+                      <Component id="jButtonClaim" min="-2" pref="55" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
-                      <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+                      <Component id="jCheckBoxContinueMining" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jButtonStopMining" alignment="3" min="-2" pref="55" max="-2" attributes="0"/>
                           <Component id="jButtonStartMining" alignment="3" min="-2" pref="55" max="-2" attributes="0"/>
@@ -105,12 +111,12 @@
         <Property name="text" type="java.lang.String" value="Wallet Addres"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="jButton1">
+    <Component class="javax.swing.JButton" name="jButtonVerifyAddress">
       <Properties>
         <Property name="text" type="java.lang.String" value="Verify Address"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonVerifyAddressActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JSlider" name="jSlider1">
@@ -137,13 +143,13 @@
         <Property name="text" type="java.lang.String" value="Max Processors"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="jButtonVerifyButton">
+    <Component class="javax.swing.JButton" name="jButtonClaim">
       <Properties>
         <Property name="text" type="java.lang.String" value="Claim"/>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonVerifyButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonClaimActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="jButtonStopMining">
@@ -186,6 +192,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTextField2ActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="jCheckBoxContinueMining">
+      <Properties>
+        <Property name="text" type="java.lang.String" value=" Continue Mining"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBoxContinueMiningActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

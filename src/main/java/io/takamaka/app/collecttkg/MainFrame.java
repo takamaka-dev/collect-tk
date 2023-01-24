@@ -21,9 +21,10 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import lombok.extern.slf4j.Slf4j;
@@ -45,13 +46,18 @@ public class MainFrame extends javax.swing.JFrame {
     public static MainFrame mainFrame;
     private static final ConcurrentSkipListSet<Boolean> buttonKill = new ConcurrentSkipListSet<>();
     private static AtomicInteger numOfThreads = new AtomicInteger();
+    public static final String WALLET_PARAM_STRING = "^[0-9a-zA-Z-_.]+$";
+    public static Pattern WALLET_PARAM_PATTERN;
+    private static AtomicBoolean continueMining = new AtomicBoolean(false);
 
     /**
      * Creates new form MainFraine
      */
     public MainFrame() {
         initComponents();
+        WALLET_PARAM_PATTERN = Pattern.compile(WALLET_PARAM_STRING);
         numOfThreads.set(Runtime.getRuntime().availableProcessors());
+        jCheckBoxContinueMining.setSelected(continueMining.get());
     }
 
     /**
@@ -64,25 +70,26 @@ public class MainFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel2 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        jButtonVerifyAddress = new javax.swing.JButton();
         jSlider1 = new javax.swing.JSlider();
         jLabel3 = new javax.swing.JLabel();
-        jButtonVerifyButton = new javax.swing.JButton();
+        jButtonClaim = new javax.swing.JButton();
         jButtonStopMining = new javax.swing.JButton();
         jButtonStartMining = new javax.swing.JButton();
         jTextFieldWalletAddress = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
+        jCheckBoxContinueMining = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel2.setText("Wallet Addres");
 
-        jButton1.setText("Verify Address");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jButtonVerifyAddress.setText("Verify Address");
+        jButtonVerifyAddress.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jButtonVerifyAddressActionPerformed(evt);
             }
         });
 
@@ -102,11 +109,11 @@ public class MainFrame extends javax.swing.JFrame {
 
         jLabel3.setText("Max Processors");
 
-        jButtonVerifyButton.setText("Claim");
-        jButtonVerifyButton.setEnabled(false);
-        jButtonVerifyButton.addActionListener(new java.awt.event.ActionListener() {
+        jButtonClaim.setText("Claim");
+        jButtonClaim.setEnabled(false);
+        jButtonClaim.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonVerifyButtonActionPerformed(evt);
+                jButtonClaimActionPerformed(evt);
             }
         });
 
@@ -143,6 +150,13 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        jCheckBoxContinueMining.setText(" Continue Mining");
+        jCheckBoxContinueMining.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxContinueMiningActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -162,19 +176,22 @@ public class MainFrame extends javax.swing.JFrame {
                                 .addComponent(jLabel4))
                             .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonVerifyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(63, 63, 63))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTextFieldWalletAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 175, Short.MAX_VALUE)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 477, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                        .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 477, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 700, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(205, 205, 205))
+                        .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 700, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jCheckBoxContinueMining)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(24, 24, 24))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -183,7 +200,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
                     .addComponent(jTextFieldWalletAddress)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(16, 16, 16)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -191,9 +208,11 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(98, 98, 98)
-                        .addComponent(jButtonVerifyButton, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(45, 45, 45)
+                        .addGap(16, 16, 16)
+                        .addComponent(jCheckBoxContinueMining)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButtonStartMining, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -208,17 +227,21 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButtonVerifyAddressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonVerifyAddressActionPerformed
         walletAddress = jTextFieldWalletAddress.getText();
-        System.out.println("text: " + walletAddress);
-        jButtonStartMining.setEnabled(true);
-        jButtonVerifyButton.setEnabled(true);
-    }//GEN-LAST:event_jButton1ActionPerformed
+        if (WALLET_PARAM_PATTERN.matcher(walletAddress.trim()).find()) {
+            System.out.println("text: " + walletAddress);
+            jButtonStartMining.setEnabled(true);
+            jButtonClaim.setEnabled(true);
+        }
+        
+    }//GEN-LAST:event_jButtonVerifyAddressActionPerformed
 
 
     private void jButtonStopMiningActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStopMiningActionPerformed
         buttonKill.add(Boolean.TRUE);
         jButtonStartMining.setEnabled(true);
+        jCheckBoxContinueMining.setSelected(!continueMining.get());
     }//GEN-LAST:event_jButtonStopMiningActionPerformed
 
     private void jButtonStartMiningActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStartMiningActionPerformed
@@ -228,114 +251,118 @@ public class MainFrame extends javax.swing.JFrame {
             Require a challenge from server
 
          */
-        try {
-            Map<String, String> parameters = new HashMap<>();
-            parameters.put("walletAddress", walletAddress);
-            String get = ProjectHelper.doPost(
-                    "http://192.168.2.44:8080/requirechallenge", parameters);
-            ObjectMapper mapper = new ObjectMapper();
-            ChallengeResponseBean crb = mapper.readValue(get, new TypeReference<ChallengeResponseBean>() {
-            });
-            difficulty = crb.getDifficulty();
-            challengeID = crb.getChallengeId();
-            challenge = crb.getChallenge();
-        } catch (ProtocolException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            try {
+                Map<String, String> parameters = new HashMap<>();
+                parameters.put("walletAddress", walletAddress);
+                String get = ProjectHelper.doPost(
+                        "http://192.168.2.44:8080/requirechallenge", parameters);
+                ObjectMapper mapper = new ObjectMapper();
+                ChallengeResponseBean crb = mapper.readValue(get, new TypeReference<ChallengeResponseBean>() {
+                });
+                difficulty = crb.getDifficulty();
+                challengeID = crb.getChallengeId();
+                challenge = crb.getChallenge();
+            } catch (ProtocolException ex) {
+                Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
-        /*
+            /*
             Start the mining sequence
-         */
-        long maxRange = 20000000000L;
-        //--da inserire nello slider
-        System.out.println("availableProcessors:" + availableProcessors);
+             */
+            long maxRange = 20000000000L;
+            //--da inserire nello slider
+            System.out.println("availableProcessors:" + availableProcessors);
 
-        final int threadScale = availableProcessors * 
-                availableProcessors *
-                availableProcessors * 
-                availableProcessors *
-                availableProcessors * 8;
-        //--//
-        ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
+            final int threadScale = availableProcessors
+                    * availableProcessors
+                    * availableProcessors
+                    * availableProcessors
+                    * availableProcessors * 8;
+            //--//
+            ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
 //        final String post = "B6bCu6Ee9ICmsF_6Lzfs5GlB_SPl3rjMXIIE2Bb1Lpg." + challengeID + challenge;
-        final String post = challenge;
-        log.info("challeng: " + challenge);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                long curr = 0;
-                ForkJoinPool fjp = new ForkJoinPool(numOfThreads.get());
+            final String post = challenge;
+            log.info("challeng: " + challenge);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    long curr = 0;
+                    ForkJoinPool fjp = new ForkJoinPool(numOfThreads.get());
 
-                do {
-                    try {
-                        Date begin = new Date();
-                        final LongStream range = LongStream.range(curr, curr + threadScale);
-                        fjp.submit(() -> {
-                            range.parallel().forEach((long i) -> {
+                    do {
+                        try {
+                            Date begin = new Date();
+                            final LongStream range = LongStream.range(curr, curr + threadScale);
+                            fjp.submit(() -> {
+                                range.parallel().forEach((long i) -> {
 
-                                byte[] hash256Byte = {};
-                                try {
-                                    hash256Byte = TkmSignUtils.Hash256Byte((i + post).getBytes(), FixedParameters.HASH_256_ALGORITHM);
-                                } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
-                                    log.error("ooooopz", ex);
-                                }
-                                String fromBytesToHexString = fromBytesToHexString(
-                                        hash256Byte);
-                                if (fromBytesToHexString.startsWith(difficulty)) {
-                                    killClausole.add(Boolean.TRUE);
-                                    sol.put(i, fromBytesToHexString);
-                                }
+                                    byte[] hash256Byte = {};
+                                    try {
+                                        hash256Byte = TkmSignUtils.Hash256Byte((i + post).getBytes(), FixedParameters.HASH_256_ALGORITHM);
+                                    } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
+                                        log.error("ooooopz", ex);
+                                    }
+                                    String fromBytesToHexString = fromBytesToHexString(
+                                            hash256Byte);
+                                    if (fromBytesToHexString.startsWith(difficulty)) {
+                                        killClausole.add(Boolean.TRUE);
+                                        sol.put(i, fromBytesToHexString);
+                                    }
 
-                            });
-                        }).get();
+                                });
+                            }).get();
 
-                        Date end = new Date();
-                        double sec = ((double) (end.getTime() - begin.getTime())) / 1000;
-                        if (sec == 0) {
-                            sec = 1L;
+                            Date end = new Date();
+                            double sec = ((double) (end.getTime() - begin.getTime())) / 1000;
+                            if (sec == 0) {
+                                sec = 1L;
+                            }
+
+                            jTextField2.setText(Math.round(threadScale / sec) + "");
+                            mainFrame.invalidate();
+                            mainFrame.validate();
+                            mainFrame.repaint();
+
+                            curr += threadScale;
+                        } catch (InterruptedException | ExecutionException ex) {
+                            Logger.getLogger(
+                                    MainFrame.class.getName())
+                                    .log(Level.SEVERE, null, ex);
                         }
 
-                        jTextField2.setText(Math.round(threadScale / sec) + "");
-                        mainFrame.invalidate();
-                        mainFrame.validate();
-                        mainFrame.repaint();
-
-                        curr += threadScale;
-                    } catch (InterruptedException | ExecutionException ex) {
-                        Logger.getLogger(
-                                MainFrame.class.getName())
-                                .log(Level.SEVERE, null, ex);
+                    } while (curr < maxRange
+                            & !killClausole.contains(Boolean.TRUE)
+                            & !buttonKill.contains(Boolean.TRUE));
+                    if (!buttonKill.contains(Boolean.TRUE)) {
+                        Map<String, String> parameters = new HashMap<>();
+                        parameters.put("challengeID", String.valueOf(challengeID));
+                        parameters.put("walletAddress", walletAddress);
+                        parameters.put("challenge", challenge);
+                        parameters.put("interoSoluzione", sol.firstEntry().getKey() + "");
+                        try {
+                            String get = ProjectHelper.doPost(
+                                    "http://192.168.2.44:8080/checkresult", parameters);
+                            log.info(get);
+                        } catch (IOException ex) {
+                            log.error(ex.getLocalizedMessage());
+                        }
+                        log.info("Iterazioni eseguite " + sol.firstEntry().getKey() + " per trovare la soluzione " + sol.firstEntry().getValue());
+                    } else {
+                        log.info("Stop by user action");
                     }
 
-                } while (curr < maxRange &
-                        !killClausole.contains(Boolean.TRUE) &
-                        !buttonKill.contains(Boolean.TRUE));
-                if (!buttonKill.contains(Boolean.TRUE)) {
-                    Map<String, String> parameters = new HashMap<>();
-                    parameters.put("challengeID", String.valueOf(challengeID));
-                    parameters.put("walletAddress", walletAddress);
-                    parameters.put("challenge", challenge);
-                    parameters.put("interoSoluzione", sol.firstEntry().getKey() + "");
-                    try {
-                        String get = ProjectHelper.doPost(
-                                "http://192.168.2.44:8080/checkresult", parameters);
-                        log.info(get);
-                    } catch (IOException ex) {
-                        log.error(ex.getLocalizedMessage());
+                    sol.clear();
+                    killClausole.clear();
+                    buttonKill.clear();
+                    jButtonStartMining.setEnabled(true);
+                    if(jCheckBoxContinueMining.isSelected()){
+                        jButtonStartMining.doClick();
                     }
-                    log.info("Iterazioni eseguite " + sol.firstEntry().getKey() + " per trovare la soluzione " + sol.firstEntry().getValue());
-                } else {
-                    log.info("Stop by user action");
+                    
                 }
-
-                sol.clear();
-                killClausole.clear();
-                buttonKill.clear();
-                jButtonStartMining.setEnabled(true);
-            }
-        }).start();
+            }).start();
 
     }//GEN-LAST:event_jButtonStartMiningActionPerformed
 
@@ -349,13 +376,20 @@ public class MainFrame extends javax.swing.JFrame {
         jTextFieldWalletAddress.setText(jTextFieldWalletAddress.getText());
     }//GEN-LAST:event_jTextFieldWalletAddressActionPerformed
 
-    private void jButtonVerifyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonVerifyButtonActionPerformed
+    private void jButtonClaimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonClaimActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButtonVerifyButtonActionPerformed
+    }//GEN-LAST:event_jButtonClaimActionPerformed
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField2ActionPerformed
+
+    private void jCheckBoxContinueMiningActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxContinueMiningActionPerformed
+        continueMining.set(!continueMining.get());
+        System.out.println("continueMining " + continueMining.get());
+        jCheckBoxContinueMining.setSelected(continueMining.get());
+        System.out.println("is enabled? " + jCheckBoxContinueMining.isSelected());
+    }//GEN-LAST:event_jCheckBoxContinueMiningActionPerformed
 
     /**
      * @param args the command line arguments
@@ -420,10 +454,11 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButtonClaim;
     private javax.swing.JButton jButtonStartMining;
     private javax.swing.JButton jButtonStopMining;
-    private javax.swing.JButton jButtonVerifyButton;
+    private javax.swing.JButton jButtonVerifyAddress;
+    private javax.swing.JCheckBox jCheckBoxContinueMining;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
