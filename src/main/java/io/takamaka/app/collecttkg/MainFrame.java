@@ -253,7 +253,11 @@ public class MainFrame extends javax.swing.JFrame {
         //--da inserire nello slider
         System.out.println("availableProcessors:" + availableProcessors);
 
-        final int threadScale = availableProcessors * availableProcessors * availableProcessors * availableProcessors * availableProcessors * 8;
+        final int threadScale = availableProcessors * 
+                availableProcessors *
+                availableProcessors * 
+                availableProcessors *
+                availableProcessors * 8;
         //--//
         ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
 //        final String post = "B6bCu6Ee9ICmsF_6Lzfs5GlB_SPl3rjMXIIE2Bb1Lpg." + challengeID + challenge;
