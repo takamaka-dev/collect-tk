@@ -151,6 +151,7 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel1.setText("pwd/s:");
 
         jTextField2.setEnabled(false);
+        jTextField2.setFocusable(false);
         jTextField2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField2ActionPerformed(evt);
@@ -264,7 +265,7 @@ public class MainFrame extends javax.swing.JFrame {
             jButtonStartMining.setEnabled(true);
             jButtonClaim.setEnabled(true);
         }
-        
+
     }//GEN-LAST:event_jButtonVerifyAddressActionPerformed
 
 
@@ -281,118 +282,115 @@ public class MainFrame extends javax.swing.JFrame {
             Require a challenge from server
 
          */
-            try {
-                Map<String, String> parameters = new HashMap<>();
-                parameters.put("walletAddress", walletAddress);
-                String get = ProjectHelper.doPost(
-                        "http://192.168.2.44:8080/requirechallenge", parameters);
-                ObjectMapper mapper = new ObjectMapper();
-                ChallengeResponseBean crb = mapper.readValue(get, new TypeReference<ChallengeResponseBean>() {
-                });
-                difficulty = crb.getDifficulty();
-                challengeID = crb.getChallengeId();
-                challenge = crb.getChallenge();
-            } catch (ProtocolException ex) {
-                Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        try {
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("walletAddress", walletAddress);
+            String get = ProjectHelper.doPost(
+                    "http://192.168.2.44:8080/requirechallenge", parameters);
+            ObjectMapper mapper = new ObjectMapper();
+            ChallengeResponseBean crb = mapper.readValue(get, new TypeReference<ChallengeResponseBean>() {
+            });
+            difficulty = crb.getDifficulty();
+            challengeID = crb.getChallengeId();
+            challenge = crb.getChallenge();
+        } catch (ProtocolException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-            /*
+        /*
             Start the mining sequence
-             */
-            long maxRange = 20000000000L;
-            //--da inserire nello slider
-            System.out.println("availableProcessors:" + availableProcessors);
+         */
+        long maxRange = 20000000000L;
 
-            final int threadScale = availableProcessors
-                    * availableProcessors
-                    * availableProcessors
-                    * availableProcessors
-                    * availableProcessors * 8;
-            //--//
-            ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
-//        final String post = "B6bCu6Ee9ICmsF_6Lzfs5GlB_SPl3rjMXIIE2Bb1Lpg." + challengeID + challenge;
-            final String post = challenge;
-            log.info("challeng: " + challenge);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    long curr = 0;
-                    ForkJoinPool fjp = new ForkJoinPool(numOfThreads.get());
+        final int threadScale = availableProcessors
+                * availableProcessors
+                * availableProcessors
+                * availableProcessors
+                * availableProcessors * 8;
 
-                    do {
-                        try {
-                            Date begin = new Date();
-                            final LongStream range = LongStream.range(curr, curr + threadScale);
-                            fjp.submit(() -> {
-                                range.parallel().forEach((long i) -> {
+        ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
+        final String post = challenge;
+        log.info("challeng: " + challenge);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                long curr = 0;
+                ForkJoinPool fjp = new ForkJoinPool(numOfThreads.get());
 
-                                    byte[] hash256Byte = {};
-                                    try {
-                                        hash256Byte = TkmSignUtils.Hash256Byte((i + post).getBytes(), FixedParameters.HASH_256_ALGORITHM);
-                                    } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
-                                        log.error("ooooopz", ex);
-                                    }
-                                    String fromBytesToHexString = fromBytesToHexString(
-                                            hash256Byte);
-                                    if (fromBytesToHexString.startsWith(difficulty)) {
-                                        killClausole.add(Boolean.TRUE);
-                                        sol.put(i, fromBytesToHexString);
-                                    }
+                do {
+                    try {
+                        Date begin = new Date();
+                        final LongStream range = LongStream.range(curr, curr + threadScale);
+                        fjp.submit(() -> {
+                            range.parallel().forEach((long i) -> {
 
-                                });
-                            }).get();
+                                byte[] hash256Byte = {};
+                                try {
+                                    hash256Byte = TkmSignUtils.Hash256Byte((i + post).getBytes(), FixedParameters.HASH_256_ALGORITHM);
+                                } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
+                                    log.error("ooooopz", ex);
+                                }
+                                String fromBytesToHexString = fromBytesToHexString(
+                                        hash256Byte);
+                                if (fromBytesToHexString.startsWith(difficulty)) {
+                                    killClausole.add(Boolean.TRUE);
+                                    sol.put(i, fromBytesToHexString);
+                                }
 
-                            Date end = new Date();
-                            double sec = ((double) (end.getTime() - begin.getTime())) / 1000;
-                            if (sec == 0) {
-                                sec = 1L;
-                            }
+                            });
+                        }).get();
 
-                            jTextField2.setText(Math.round(threadScale / sec) + "");
-                            mainFrame.invalidate();
-                            mainFrame.validate();
-                            mainFrame.repaint();
-
-                            curr += threadScale;
-                        } catch (InterruptedException | ExecutionException ex) {
-                            Logger.getLogger(
-                                    MainFrame.class.getName())
-                                    .log(Level.SEVERE, null, ex);
+                        Date end = new Date();
+                        double sec = ((double) (end.getTime() - begin.getTime())) / 1000;
+                        if (sec == 0) {
+                            sec = 1L;
                         }
 
-                    } while (curr < maxRange
-                            & !killClausole.contains(Boolean.TRUE)
-                            & !buttonKill.contains(Boolean.TRUE));
-                    if (!buttonKill.contains(Boolean.TRUE)) {
-                        Map<String, String> parameters = new HashMap<>();
-                        parameters.put("challengeID", String.valueOf(challengeID));
-                        parameters.put("walletAddress", walletAddress);
-                        parameters.put("challenge", challenge);
-                        parameters.put("interoSoluzione", sol.firstEntry().getKey() + "");
-                        try {
-                            String get = ProjectHelper.doPost(
-                                    "http://192.168.2.44:8080/checkresult", parameters);
-                            log.info(get);
-                        } catch (IOException ex) {
-                            log.error(ex.getLocalizedMessage());
-                        }
-                        log.info("Iterazioni eseguite " + sol.firstEntry().getKey() + " per trovare la soluzione " + sol.firstEntry().getValue());
-                    } else {
-                        log.info("Stop by user action");
+                        jTextField2.setText(Math.round(threadScale / sec) + "");
+                        mainFrame.invalidate();
+                        mainFrame.validate();
+                        mainFrame.repaint();
+
+                        curr += threadScale;
+                    } catch (InterruptedException | ExecutionException ex) {
+                        Logger.getLogger(
+                                MainFrame.class.getName())
+                                .log(Level.SEVERE, null, ex);
                     }
 
-                    sol.clear();
-                    killClausole.clear();
-                    buttonKill.clear();
-                    jButtonStartMining.setEnabled(true);
-                    if(jCheckBoxContinueMining.isSelected()){
-                        jButtonStartMining.doClick();
+                } while (curr < maxRange
+                        & !killClausole.contains(Boolean.TRUE)
+                        & !buttonKill.contains(Boolean.TRUE));
+                if (!buttonKill.contains(Boolean.TRUE)) {
+                    Map<String, String> parameters = new HashMap<>();
+                    parameters.put("challengeID", String.valueOf(challengeID));
+                    parameters.put("walletAddress", walletAddress);
+                    parameters.put("challenge", challenge);
+                    parameters.put("interoSoluzione", sol.firstEntry().getKey() + "");
+                    try {
+                        String get = ProjectHelper.doPost(
+                                "http://192.168.2.44:8080/checkresult", parameters);
+                        log.info(get);
+                    } catch (IOException ex) {
+                        log.error(ex.getLocalizedMessage());
                     }
-                    
+                    log.info("Iterazioni eseguite " + sol.firstEntry().getKey() + " per trovare la soluzione " + sol.firstEntry().getValue());
+                } else {
+                    log.info("Stop by user action");
                 }
-            }).start();
+
+                sol.clear();
+                killClausole.clear();
+                buttonKill.clear();
+                jButtonStartMining.setEnabled(true);
+                if (jCheckBoxContinueMining.isSelected()) {
+                    jButtonStartMining.doClick();
+                }
+
+            }
+        }).start();
 
     }//GEN-LAST:event_jButtonStartMiningActionPerformed
 
@@ -416,20 +414,18 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void jCheckBoxContinueMiningActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxContinueMiningActionPerformed
         continueMining.set(!continueMining.get());
-        System.out.println("continueMining " + continueMining.get());
         jCheckBoxContinueMining.setSelected(continueMining.get());
-        System.out.println("is enabled? " + jCheckBoxContinueMining.isSelected());
     }//GEN-LAST:event_jCheckBoxContinueMiningActionPerformed
 
     private void jButtonPasteFromClipboardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPasteFromClipboardActionPerformed
         jTextFieldWalletAddress.setText(pasteFromClipboard());
     }//GEN-LAST:event_jButtonPasteFromClipboardActionPerformed
-    
+
     public Clipboard getClipboard() {
         Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
         return defaultToolkit.getSystemClipboard();
     }
-    
+
     public String pasteFromClipboard() {
         String res = null;
         Clipboard clipboard = getClipboard();
@@ -443,6 +439,7 @@ public class MainFrame extends javax.swing.JFrame {
         }
         return res;
     }
+
     /**
      * @param args the command line arguments
      */
