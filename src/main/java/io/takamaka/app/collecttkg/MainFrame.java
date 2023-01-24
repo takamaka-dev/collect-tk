@@ -52,7 +52,6 @@ public class MainFrame extends javax.swing.JFrame {
     public MainFrame() {
         initComponents();
         numOfThreads.set(Runtime.getRuntime().availableProcessors());
-
     }
 
     /**
