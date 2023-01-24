@@ -365,7 +365,7 @@ public class MainFrame extends javax.swing.JFrame {
                         & !buttonKill.contains(Boolean.TRUE));
                 if (!buttonKill.contains(Boolean.TRUE)) {
                     Map<String, String> parameters = new HashMap<>();
-                    parameters.put("challengeID", String.valueOf(challengeID));
+//                    parameters.put("challengeID", String.valueOf(challengeID));
                     parameters.put("walletAddress", walletAddress);
                     parameters.put("challenge", challenge);
                     parameters.put("interoSoluzione", sol.firstEntry().getKey() + "");
