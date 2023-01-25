@@ -11,13 +11,39 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
+    <developers>
+        <developer>
+            <id>gio-ant</id>
+            <name>Giovanni Antino</name>
+            <email>giovanni.antino@takamaka.io</email>
+        </developer>
+        <developer>
+            <id>zaikeneim</id>
+            <name>Alessandro Pasi</name>
+            <email>alessandro.pasi@takamaka.io</email>
+        </developer>
+        <developer>
+            <id>isacco-borsani-takamaka</id>
+            <name>Isacco Borsani</name>
+            <email>isacco.borsani@takamaka.io</email>
+        </developer>
+        <developer>
+            <id>iris-dimni</id>
+            <name>Iris Dimni</name>
+            <email>iris.dimni@takamaka.io</email>
+        </developer>
+        <developer>
+            <id>eltonkasmi</id>
+            <name>Elton Kasmi</name>
+            <email>elton.kasmi@takamaka.io</email>
+        </developer>
+        <developer>
+            <id>takamaka-dev</id>
+            <name>Takamaka Dev</name>
+            <email>tech@takamaka.io</email>
+        </developer>
+    </developers>
     <dependencies>
-
-        <!--        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>2.0.6</version>
-        </dependency>-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>

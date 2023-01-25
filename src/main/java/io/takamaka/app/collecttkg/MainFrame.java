@@ -16,6 +16,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import static java.lang.Thread.sleep;
 import java.net.ProtocolException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -54,6 +55,7 @@ public class MainFrame extends javax.swing.JFrame {
     public static final String WALLET_PARAM_STRING = "^[0-9a-zA-Z-_.]+$";
     public static Pattern WALLET_PARAM_PATTERN;
     private static AtomicBoolean continueMining = new AtomicBoolean(false);
+    private static final ConcurrentSkipListSet<Boolean> stopPolling = new ConcurrentSkipListSet<>();
 
     /**
      * Creates new form MainFraine
@@ -88,6 +90,9 @@ public class MainFrame extends javax.swing.JFrame {
         jCheckBoxContinueMining = new javax.swing.JCheckBox();
         jLabelTakamakaLogo = new javax.swing.JLabel();
         jButtonPasteFromClipboard = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        jTextField3 = new javax.swing.JTextField();
+        jLabelClaimStatus = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -174,6 +179,18 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        jLabel5.setText("Solutions not claimed:");
+
+        jTextField3.setEnabled(false);
+        jTextField3.setFocusable(false);
+        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField3ActionPerformed(evt);
+            }
+        });
+
+        jLabelClaimStatus.setForeground(new java.awt.Color(0, 153, 51));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -181,37 +198,48 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jCheckBoxContinueMining)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(70, 70, 70)
+                        .addComponent(jButtonPasteFromClipboard, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldWalletAddress)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 700, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButtonStartMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jCheckBoxContinueMining)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(116, 116, 116)
-                                .addComponent(jLabel1)))
-                        .addGap(6, 6, 6)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(401, 401, 401)
-                        .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(70, 70, 70)
-                            .addComponent(jButtonPasteFromClipboard, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jTextFieldWalletAddress)
-                            .addGap(18, 18, 18)
-                            .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(6, 6, 6)
-                            .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 700, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(21, Short.MAX_VALUE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButtonStartMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(116, 116, 116)
+                                        .addComponent(jLabel1)))
+                                .addGap(6, 6, 6)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(213, 213, 213)
+                                .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jTextField3)
+                                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(0, 128, Short.MAX_VALUE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabelTakamakaLogo)
-                .addGap(347, 347, 347))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabelTakamakaLogo)
+                        .addGap(347, 347, 347))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabelClaimStatus)
+                        .addGap(271, 271, 271))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -224,11 +252,13 @@ public class MainFrame extends javax.swing.JFrame {
                         .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(48, 48, 48)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabelClaimStatus)
+                        .addGap(17, 17, 17)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jButtonPasteFromClipboard)
+                                    .addComponent(jButtonPasteFromClipboard, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jTextFieldWalletAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(18, 18, 18))
                             .addGroup(layout.createSequentialGroup()
@@ -250,9 +280,13 @@ public class MainFrame extends javax.swing.JFrame {
                         .addGap(31, 31, 31)
                         .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(53, 53, 53)
-                        .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(46, Short.MAX_VALUE))
+                        .addGap(4, 4, 4)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel5))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(54, Short.MAX_VALUE))
         );
 
         pack();
@@ -271,6 +305,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void jButtonStopMiningActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStopMiningActionPerformed
         buttonKill.add(Boolean.TRUE);
+        stopPolling.add(Boolean.TRUE);
         jButtonStartMining.setEnabled(true);
         jCheckBoxContinueMining.setSelected(false);
     }//GEN-LAST:event_jButtonStopMiningActionPerformed
@@ -286,7 +321,7 @@ public class MainFrame extends javax.swing.JFrame {
             Map<String, String> parameters = new HashMap<>();
             parameters.put("walletAddress", walletAddress);
             String get = ProjectHelper.doPost(
-                    "http://192.168.2.44:8080/requirechallenge", parameters);
+                    "http://192.168.2.143:8080/requirechallenge", parameters);
             ObjectMapper mapper = new ObjectMapper();
             ChallengeResponseBean crb = mapper.readValue(get, new TypeReference<ChallengeResponseBean>() {
             });
@@ -371,7 +406,7 @@ public class MainFrame extends javax.swing.JFrame {
                     parameters.put("interoSoluzione", sol.firstEntry().getKey() + "");
                     try {
                         String get = ProjectHelper.doPost(
-                                "http://192.168.2.44:8080/checkresult", parameters);
+                                "http://192.168.2.143:8080/checkresult", parameters);
                         log.info(get);
                     } catch (IOException ex) {
                         log.error(ex.getLocalizedMessage());
@@ -392,6 +427,23 @@ public class MainFrame extends javax.swing.JFrame {
             }
         }).start();
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!stopPolling.contains(Boolean.TRUE)) {
+                    Map<String, String> parameters = new HashMap<>();
+                    parameters.put("walletAddress", walletAddress);
+                    try {
+                        String numberOfClaims = ProjectHelper.doPost("http://192.168.2.143:8080/checkclamingsolutions", parameters);
+                        jTextField3.setText(numberOfClaims);
+                        sleep(5000);
+                    } catch (IOException | InterruptedException ex) {
+                        log.error(ex.getLocalizedMessage());
+                    }
+                }
+            }
+        }
+        ).start();
     }//GEN-LAST:event_jButtonStartMiningActionPerformed
 
     private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
@@ -405,7 +457,31 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextFieldWalletAddressActionPerformed
 
     private void jButtonClaimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonClaimActionPerformed
-        // TODO add your handling code here:
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Map<String, String> parameters = new HashMap<>();
+
+                parameters.put("walletAddress", walletAddress);
+                try {
+                    ProjectHelper.doPost("http://192.168.2.143:8080/claimsolutions", parameters);
+                    jLabelClaimStatus.setText("The solutions has been properly claimed! Check your balance!");
+                    sleep(10000);
+                    jLabelClaimStatus.setText("");
+                } catch (IOException ex) {
+                    log.error(ex.getLocalizedMessage());
+                    jLabelClaimStatus.setText(ex.getLocalizedMessage());
+                    try {
+                        sleep(10000);
+                    } catch (InterruptedException ex1) {
+                        Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex1);
+                    }
+                    jLabelClaimStatus.setText("");
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }).start();
     }//GEN-LAST:event_jButtonClaimActionPerformed
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
@@ -420,6 +496,10 @@ public class MainFrame extends javax.swing.JFrame {
     private void jButtonPasteFromClipboardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPasteFromClipboardActionPerformed
         jTextFieldWalletAddress.setText(pasteFromClipboard());
     }//GEN-LAST:event_jButtonPasteFromClipboardActionPerformed
+
+    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+
+    }//GEN-LAST:event_jTextField3ActionPerformed
 
     public Clipboard getClipboard() {
         Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
@@ -517,9 +597,12 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabelClaimStatus;
     private javax.swing.JLabel jLabelTakamakaLogo;
     private javax.swing.JSlider jSlider1;
     private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextFieldWalletAddress;
     // End of variables declaration//GEN-END:variables
 }
