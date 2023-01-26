@@ -339,7 +339,24 @@ public class MainFrame extends javax.swing.JFrame {
 
         ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
         final String post = challenge;
-        log.info("challeng: " + challenge);
+        log.info("challenge: " + challenge);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!stopPolling.contains(Boolean.TRUE)) {
+                    Map<String, String> parameters = new HashMap<>();
+                    parameters.put("walletAddress", walletAddress);
+                    try {
+                        String numberOfClaims = ProjectHelper.doPost("http://192.168.2.143:8080/checkclamingsolutions", parameters);
+                        jTextField3.setText(numberOfClaims);
+                        sleep(5000);
+                    } catch (IOException | InterruptedException ex) {
+                        log.error(ex.getLocalizedMessage());
+                    }
+                }
+            }
+        }
+        ).start();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -418,24 +435,6 @@ public class MainFrame extends javax.swing.JFrame {
 
             }
         }).start();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!stopPolling.contains(Boolean.TRUE)) {
-                    Map<String, String> parameters = new HashMap<>();
-                    parameters.put("walletAddress", walletAddress);
-                    try {
-                        String numberOfClaims = ProjectHelper.doPost("http://192.168.2.143:8080/checkclamingsolutions", parameters);
-                        jTextField3.setText(numberOfClaims);
-                        sleep(5000);
-                    } catch (IOException | InterruptedException ex) {
-                        log.error(ex.getLocalizedMessage());
-                    }
-                }
-            }
-        }
-        ).start();
     }//GEN-LAST:event_jButtonStartMiningActionPerformed
 
     private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
