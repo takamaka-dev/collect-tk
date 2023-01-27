@@ -452,14 +452,18 @@ public class MainFrame extends javax.swing.JFrame {
             @Override
             public void run() {
                 Map<String, String> parameters = new HashMap<>();
-
                 parameters.put("walletAddress", walletAddress);
                 try {
-                    ProjectHelper.doPost("http://192.168.2.143:8080/claimsolutions", parameters);
+                    String hex = ProjectHelper.doPost("http://192.168.2.143:8080/gethextrx", parameters);
+                    ProjectHelper.doPost("http://192.168.2.143:8080/updateclaimsolutions", parameters);
                     jTextField3.setText("0");
                     jLabelClaimStatus.setText("The solutions has been properly claimed! Check your balance!");
                     sleep(10000);
                     jLabelClaimStatus.setText("");
+                    Map<String, String> saveParameters = new HashMap<>();
+                    saveParameters.put("walletAddress", walletAddress);
+                    saveParameters.put("hex", hex);
+                    ProjectHelper.doPost("http://192.168.2.143:8080/savepaytodo", saveParameters);
                 } catch (IOException ex) {
                     log.error(ex.getLocalizedMessage());
                     jLabelClaimStatus.setText(ex.getLocalizedMessage());
