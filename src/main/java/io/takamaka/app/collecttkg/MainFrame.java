@@ -456,6 +456,7 @@ public class MainFrame extends javax.swing.JFrame {
                 parameters.put("walletAddress", walletAddress);
                 try {
                     ProjectHelper.doPost("http://192.168.2.143:8080/claimsolutions", parameters);
+                    jTextField3.setText("0");
                     jLabelClaimStatus.setText("The solutions has been properly claimed! Check your balance!");
                     sleep(10000);
                     jLabelClaimStatus.setText("");
