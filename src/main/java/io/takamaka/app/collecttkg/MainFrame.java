@@ -7,7 +7,11 @@ package io.takamaka.app.collecttkg;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.takamaka.app.collecttkg.bean.ChallengeResponseBean;
+import io.takamaka.app.collecttkg.bean.PayTrxResponseBean;
+import io.takamaka.app.collecttkg.utils.GlobalConstants;
 import io.takamaka.app.collecttkg.utils.ProjectHelper;
+import io.takamaka.app.collecttkg.utils.TkmTextUtils;
+import io.takamaka.wallet.beans.TransactionBox;
 import io.takamaka.wallet.utils.FixedParameters;
 import io.takamaka.wallet.utils.TkmSignUtils;
 import java.awt.Toolkit;
@@ -153,6 +157,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         jLabel1.setText("pwd/s:");
 
+        jTextField2.setText("0");
         jTextField2.setEnabled(false);
         jTextField2.setFocusable(false);
         jTextField2.addActionListener(new java.awt.event.ActionListener() {
@@ -179,6 +184,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         jLabel5.setText("Solutions not claimed:");
 
+        jTextField3.setText("0");
         jTextField3.setEnabled(false);
         jTextField3.setFocusable(false);
         jTextField3.addActionListener(new java.awt.event.ActionListener() {
@@ -198,26 +204,6 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jCheckBoxContinueMining)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jButtonStartMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(116, 116, 116)
-                                        .addComponent(jLabel1)))
-                                .addGap(6, 6, 6)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(213, 213, 213)
-                                .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jTextField3)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                        .addGap(0, 110, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jButtonPasteFromClipboard, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -226,7 +212,33 @@ public class MainFrame extends javax.swing.JFrame {
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(jTextFieldWalletAddress)
                                 .addGap(18, 18, 18)
-                                .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(jCheckBoxContinueMining)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButtonStartMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(116, 116, 116)
+                                        .addComponent(jLabel1)))
+                                .addGap(6, 6, 6)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(403, 403, 403)
+                                        .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel5))))
+                        .addGap(0, 110, Short.MAX_VALUE)))
                 .addGap(24, 24, 24))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -246,16 +258,15 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18))
+                        .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabelClaimStatus)
                         .addGap(17, 17, 17)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButtonPasteFromClipboard, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextFieldWalletAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)))
+                            .addComponent(jTextFieldWalletAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -268,16 +279,15 @@ public class MainFrame extends javax.swing.JFrame {
                         .addGap(33, 33, 33)
                         .addComponent(jLabel1))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(31, 31, 31)
-                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(4, 4, 4)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5))
+                            .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(62, Short.MAX_VALUE))
         );
 
@@ -454,7 +464,9 @@ public class MainFrame extends javax.swing.JFrame {
                 Map<String, String> parameters = new HashMap<>();
                 parameters.put("walletAddress", walletAddress);
                 try {
-                    String hex = ProjectHelper.doPost("http://192.168.2.143:8080/gethextrx", parameters);
+                    ObjectMapper om = new ObjectMapper();
+                    String jsonTrx = ProjectHelper.doPost("http://192.168.2.143:8080/gethextrx", parameters);
+                    PayTrxResponseBean ptrb = om.readValue(jsonTrx, PayTrxResponseBean.class);
                     ProjectHelper.doPost("http://192.168.2.143:8080/updateclaimsolutions", parameters);
                     jTextField3.setText("0");
                     jLabelClaimStatus.setText("The solutions has been properly claimed! Check your balance!");
@@ -462,8 +474,18 @@ public class MainFrame extends javax.swing.JFrame {
                     jLabelClaimStatus.setText("");
                     Map<String, String> saveParameters = new HashMap<>();
                     saveParameters.put("walletAddress", walletAddress);
-                    saveParameters.put("hex", hex);
+                    saveParameters.put("hex", ptrb.getHexTrx());
                     ProjectHelper.doPost("http://192.168.2.143:8080/savepaytodo", saveParameters);
+                    
+                    String hasBeenIncluded;
+                    if(!TkmTextUtils.isNullOrBlank(ptrb.getTransactionHash())){
+                        do {
+                            hasBeenIncluded = TkmTextUtils.exactSearchTransactions(ptrb.getTransactionHash(), GlobalConstants.ExactSearchField.transactionhash, false, 1);
+                            log.info(hasBeenIncluded);
+                            Thread.sleep(60000);
+                        } while (!TkmTextUtils.isNullOrBlank(hasBeenIncluded));
+                    }
+                    
                 } catch (IOException ex) {
                     log.error(ex.getLocalizedMessage());
                     jLabelClaimStatus.setText(ex.getLocalizedMessage());
@@ -478,6 +500,7 @@ public class MainFrame extends javax.swing.JFrame {
                 }
             }
         }).start();
+        
     }//GEN-LAST:event_jButtonClaimActionPerformed
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
