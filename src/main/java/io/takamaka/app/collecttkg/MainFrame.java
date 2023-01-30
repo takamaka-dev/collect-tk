@@ -483,7 +483,7 @@ public class MainFrame extends javax.swing.JFrame {
                             hasBeenIncluded = TkmTextUtils.exactSearchTransactions(ptrb.getTransactionHash(), GlobalConstants.ExactSearchField.transactionhash, false, 1);
                             log.info(hasBeenIncluded);
                             Thread.sleep(60000);
-                        } while (!TkmTextUtils.isNullOrBlank(hasBeenIncluded));
+                        } while (TkmTextUtils.isNullOrBlank(hasBeenIncluded));
                     }
                     
                 } catch (IOException ex) {
