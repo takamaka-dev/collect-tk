@@ -14,6 +14,7 @@ import io.takamaka.app.collecttkg.utils.TkmTextUtils;
 import io.takamaka.wallet.beans.TransactionBox;
 import io.takamaka.wallet.utils.FixedParameters;
 import io.takamaka.wallet.utils.TkmSignUtils;
+import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -69,6 +70,7 @@ public class MainFrame extends javax.swing.JFrame {
         WALLET_PARAM_PATTERN = Pattern.compile(WALLET_PARAM_STRING);
         numOfThreads.set(Runtime.getRuntime().availableProcessors());
         jCheckBoxContinueMining.setSelected(continueMining.get());
+        jLabelInclusion.setVisible(false);
     }
 
     /**
@@ -96,6 +98,7 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jTextField3 = new javax.swing.JTextField();
         jLabelClaimStatus = new javax.swing.JLabel();
+        jLabelInclusion = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -195,6 +198,9 @@ public class MainFrame extends javax.swing.JFrame {
 
         jLabelClaimStatus.setForeground(new java.awt.Color(0, 153, 102));
 
+        jLabelInclusion.setForeground(new java.awt.Color(153, 0, 51));
+        jLabelInclusion.setText("Please wait while your payment is included in the blockchain...");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -202,7 +208,27 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jCheckBoxContinueMining)
                     .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButtonStartMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(116, 116, 116)
+                                .addComponent(jLabel1)))
+                        .addGap(6, 6, 6)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(334, 334, 334)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jLabelInclusion, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jButtonPasteFromClipboard, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -212,55 +238,28 @@ public class MainFrame extends javax.swing.JFrame {
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(jTextFieldWalletAddress)
                                 .addGap(18, 18, 18)
-                                .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(jCheckBoxContinueMining)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jButtonStartMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(116, 116, 116)
-                                        .addComponent(jLabel1)))
-                                .addGap(6, 6, 6)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(0, 0, Short.MAX_VALUE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(403, 403, 403)
-                                        .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE))))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel5))))
-                        .addGap(0, 110, Short.MAX_VALUE)))
+                                .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addGap(24, 24, 24))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(862, 862, 862)
+                .addComponent(jLabelClaimStatus)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabelTakamakaLogo)
-                        .addGap(347, 347, 347))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabelClaimStatus)
-                        .addGap(271, 271, 271))))
+                .addContainerGap(435, Short.MAX_VALUE)
+                .addComponent(jLabelTakamakaLogo)
+                .addContainerGap(411, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(41, 41, 41)
-                .addComponent(jLabelTakamakaLogo)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap(328, Short.MAX_VALUE)
                         .addComponent(jButtonVerifyAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabelTakamakaLogo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabelClaimStatus)
                         .addGap(17, 17, 17)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -275,19 +274,19 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonStartMining, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(33, 33, 33)
-                        .addComponent(jLabel1))
-                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jButtonStartMining, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButtonStopMining, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(31, 31, 31)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabelInclusion)))
+                    .addComponent(jButtonClaim, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(62, Short.MAX_VALUE))
         );
 
@@ -350,23 +349,7 @@ public class MainFrame extends javax.swing.JFrame {
         ConcurrentSkipListMap<Long, String> sol = new ConcurrentSkipListMap<>();
         final String post = challenge;
         log.info("challenge: " + challenge);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!stopPolling.contains(Boolean.TRUE)) {
-                    Map<String, String> parameters = new HashMap<>();
-                    parameters.put("walletAddress", walletAddress);
-                    try {
-                        String numberOfClaims = ProjectHelper.doPost("http://192.168.2.143:8080/checkclamingsolutions", parameters);
-                        jTextField3.setText(numberOfClaims);
-                        sleep(5000);
-                    } catch (IOException | InterruptedException ex) {
-                        log.error(ex.getLocalizedMessage());
-                    }
-                }
-            }
-        }
-        ).start();
+        refreshClaims();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -447,6 +430,26 @@ public class MainFrame extends javax.swing.JFrame {
         }).start();
     }//GEN-LAST:event_jButtonStartMiningActionPerformed
 
+    private void refreshClaims() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!stopPolling.contains(Boolean.TRUE)) {
+                    Map<String, String> parameters = new HashMap<>();
+                    parameters.put("walletAddress", walletAddress);
+                    try {
+                        String numberOfClaims = ProjectHelper.doPost("http://192.168.2.143:8080/checkclamingsolutions", parameters);
+                        jTextField3.setText(numberOfClaims + "");
+                        sleep(5000);
+                    } catch (IOException | InterruptedException ex) {
+                        log.error(ex.getLocalizedMessage());
+                    }
+                }
+            }
+        }
+        ).start();
+    }
+
     private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
         //availableProcessors = jSlider1.getValue();
         numOfThreads.set(jSlider1.getValue());
@@ -466,41 +469,59 @@ public class MainFrame extends javax.swing.JFrame {
                 try {
                     ObjectMapper om = new ObjectMapper();
                     String jsonTrx = ProjectHelper.doPost("http://192.168.2.143:8080/gethextrx", parameters);
-                    PayTrxResponseBean ptrb = om.readValue(jsonTrx, PayTrxResponseBean.class);
-                    ProjectHelper.doPost("http://192.168.2.143:8080/updateclaimsolutions", parameters);
-                    jTextField3.setText("0");
-                    jLabelClaimStatus.setText("The solutions has been properly claimed! Check your balance!");
-                    sleep(10000);
-                    jLabelClaimStatus.setText("");
-                    Map<String, String> saveParameters = new HashMap<>();
-                    saveParameters.put("walletAddress", walletAddress);
-                    saveParameters.put("hex", ptrb.getHexTrx());
-                    ProjectHelper.doPost("http://192.168.2.143:8080/savepaytodo", saveParameters);
-                    
-                    String hasBeenIncluded;
-                    if(!TkmTextUtils.isNullOrBlank(ptrb.getTransactionHash())){
-                        do {
-                            hasBeenIncluded = TkmTextUtils.exactSearchTransactions(ptrb.getTransactionHash(), GlobalConstants.ExactSearchField.transactionhash, false, 1);
-                            log.info(hasBeenIncluded);
-                            Thread.sleep(60000);
-                        } while (TkmTextUtils.isNullOrBlank(hasBeenIncluded));
+                    if (jsonTrx.equalsIgnoreCase("You do not have solutions to claim!")) {
+                        jTextField3.setText("0");
+                        jLabelClaimStatus.setText("You do not have solutions to claim!");
+                    } else {
+                        PayTrxResponseBean ptrb = om.readValue(jsonTrx, PayTrxResponseBean.class);
+                        ProjectHelper.doPost("http://192.168.2.143:8080/updateclaimsolutions", parameters);
+                        jTextField3.setText("0");
+                        jLabelClaimStatus.setText("The solutions has been properly claimed! Check your balance!");
+                        sleep(10000);
+                        jLabelClaimStatus.setText("");
+                        Map<String, String> saveParameters = new HashMap<>();
+                        saveParameters.put("walletAddress", walletAddress);
+                        saveParameters.put("hex", ptrb.getHexTrx());
+                        ProjectHelper.doPost("http://192.168.2.143:8080/savepaytodo", saveParameters);
+
+                        boolean hasBeenIncluded = false;
+                        String result;
+                        if (!TkmTextUtils.isNullOrBlank(ptrb.getTransactionHash())) {
+                            jLabelInclusion.setVisible(true);
+                            do {
+                                result = TkmTextUtils.exactSearchTransactions(ptrb.getTransactionHash(), GlobalConstants.ExactSearchField.transactionhash, false, 1);
+                                if (result.contains("sith")) {
+                                    hasBeenIncluded = true;
+                                }
+                                log.info(result);
+                                Thread.sleep(10000);
+                            } while (!hasBeenIncluded);
+                            jLabelInclusion.setForeground(new Color(0, 153, 102));
+                            jLabelInclusion.setText("Your payoutrequest is completed please check your balance.");
+                            Thread.sleep(10000);
+                            jLabelInclusion.setVisible(false);
+                        }
                     }
-                    
+
                 } catch (IOException ex) {
                     log.error(ex.getLocalizedMessage());
-                    jLabelClaimStatus.setText(ex.getLocalizedMessage());
+                    if(ex.getLocalizedMessage().contains("Server returned HTTP response code: 400")){
+                        jLabelClaimStatus.setText("You do not have solutions to claim!");
+                    }else{
+                        jLabelClaimStatus.setText(ex.getLocalizedMessage());
+                    }
                     try {
-                        sleep(10000);
+                        sleep(5000);
                     } catch (InterruptedException ex1) {
-                        Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex1);
+                        log.error(ex1.getLocalizedMessage());
                     }
                     jLabelClaimStatus.setText("");
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    log.error(ex.getLocalizedMessage());
                 }
             }
         }).start();
-        
+
     }//GEN-LAST:event_jButtonClaimActionPerformed
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
@@ -617,6 +638,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabelClaimStatus;
+    private javax.swing.JLabel jLabelInclusion;
     private javax.swing.JLabel jLabelTakamakaLogo;
     private javax.swing.JSlider jSlider1;
     private javax.swing.JTextField jTextField2;
