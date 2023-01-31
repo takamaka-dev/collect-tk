@@ -7,11 +7,11 @@ package io.takamaka.app.collecttkg;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.takamaka.app.collecttkg.bean.ChallengeResponseBean;
+import io.takamaka.app.collecttkg.bean.GlobalConfigurationBean;
 import io.takamaka.app.collecttkg.bean.PayTrxResponseBean;
 import io.takamaka.app.collecttkg.utils.GlobalConstants;
 import io.takamaka.app.collecttkg.utils.ProjectHelper;
 import io.takamaka.app.collecttkg.utils.TkmTextUtils;
-import io.takamaka.wallet.beans.TransactionBox;
 import io.takamaka.wallet.utils.FixedParameters;
 import io.takamaka.wallet.utils.TkmSignUtils;
 import java.awt.Color;
@@ -61,12 +61,15 @@ public class MainFrame extends javax.swing.JFrame {
     public static Pattern WALLET_PARAM_PATTERN;
     private static AtomicBoolean continueMining = new AtomicBoolean(false);
     private static final ConcurrentSkipListSet<Boolean> stopPolling = new ConcurrentSkipListSet<>();
+    private static GlobalConfigurationBean GLOBAL_CONFIGURATION_BEAN;
 
     /**
      * Creates new form MainFraine
+     * @throws java.io.IOException
      */
     public MainFrame() throws IOException {
         initComponents();
+        GLOBAL_CONFIGURATION_BEAN = new GlobalConfigurator().getGlobalConfigurationBean();
         WALLET_PARAM_PATTERN = Pattern.compile(WALLET_PARAM_STRING);
         numOfThreads.set(Runtime.getRuntime().availableProcessors());
         jCheckBoxContinueMining.setSelected(continueMining.get());
@@ -322,7 +325,7 @@ public class MainFrame extends javax.swing.JFrame {
             Map<String, String> parameters = new HashMap<>();
             parameters.put("walletAddress", walletAddress);
             String get = ProjectHelper.doPost(
-                    "http://192.168.2.143:8080/requirechallenge", parameters);
+                    GLOBAL_CONFIGURATION_BEAN.getBaseUrlEndpoint()+GLOBAL_CONFIGURATION_BEAN.getRequireChallengeApi(), parameters);
             ObjectMapper mapper = new ObjectMapper();
             ChallengeResponseBean crb = mapper.readValue(get, new TypeReference<ChallengeResponseBean>() {
             });
@@ -408,7 +411,7 @@ public class MainFrame extends javax.swing.JFrame {
                     parameters.put("interoSoluzione", sol.firstEntry().getKey() + "");
                     try {
                         String get = ProjectHelper.doPost(
-                                "http://192.168.2.143:8080/checkresult", parameters);
+                                GLOBAL_CONFIGURATION_BEAN.getBaseUrlEndpoint()+GLOBAL_CONFIGURATION_BEAN.getCheckResultApi(), parameters);
                         log.info(get);
                     } catch (IOException ex) {
                         log.error(ex.getLocalizedMessage());
@@ -438,11 +441,13 @@ public class MainFrame extends javax.swing.JFrame {
                     Map<String, String> parameters = new HashMap<>();
                     parameters.put("walletAddress", walletAddress);
                     try {
-                        String numberOfClaims = ProjectHelper.doPost("http://192.168.2.143:8080/checkclamingsolutions", parameters);
+                        String numberOfClaims = ProjectHelper.doPost(GLOBAL_CONFIGURATION_BEAN.getBaseUrlEndpoint()+GLOBAL_CONFIGURATION_BEAN.getCheckclaimingSolutionsApi(), parameters);
                         jTextField3.setText(numberOfClaims + "");
                         sleep(5000);
-                    } catch (IOException | InterruptedException ex) {
+                    } catch (InterruptedException ex) {
                         log.error(ex.getLocalizedMessage());
+                    } catch (IOException ex) {
+                        Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
@@ -468,13 +473,13 @@ public class MainFrame extends javax.swing.JFrame {
                 parameters.put("walletAddress", walletAddress);
                 try {
                     ObjectMapper om = new ObjectMapper();
-                    String jsonTrx = ProjectHelper.doPost("http://192.168.2.143:8080/gethextrx", parameters);
+                    String jsonTrx = ProjectHelper.doPost(GLOBAL_CONFIGURATION_BEAN.getBaseUrlEndpoint()+GLOBAL_CONFIGURATION_BEAN.getGetHexTrxApi(), parameters);
                     if (jsonTrx.equalsIgnoreCase("You do not have solutions to claim!")) {
                         jTextField3.setText("0");
                         jLabelClaimStatus.setText("You do not have solutions to claim!");
                     } else {
                         PayTrxResponseBean ptrb = om.readValue(jsonTrx, PayTrxResponseBean.class);
-                        ProjectHelper.doPost("http://192.168.2.143:8080/updateclaimsolutions", parameters);
+                        ProjectHelper.doPost(GLOBAL_CONFIGURATION_BEAN.getBaseUrlEndpoint()+GLOBAL_CONFIGURATION_BEAN.getUpdateClamingSolutionsApi(), parameters);
                         jTextField3.setText("0");
                         jLabelClaimStatus.setText("The solutions has been properly claimed! Check your balance!");
                         sleep(10000);
@@ -482,7 +487,7 @@ public class MainFrame extends javax.swing.JFrame {
                         Map<String, String> saveParameters = new HashMap<>();
                         saveParameters.put("walletAddress", walletAddress);
                         saveParameters.put("hex", ptrb.getHexTrx());
-                        ProjectHelper.doPost("http://192.168.2.143:8080/savepaytodo", saveParameters);
+                        ProjectHelper.doPost(GLOBAL_CONFIGURATION_BEAN.getBaseUrlEndpoint()+GLOBAL_CONFIGURATION_BEAN.getSavePayTodoApi(), saveParameters);
 
                         boolean hasBeenIncluded = false;
                         String result;
