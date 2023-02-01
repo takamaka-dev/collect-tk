@@ -7,4 +7,18 @@ PoS is considered more energy-efficient than PoW because it does not require min
 
 ![mining-schema](https://user-images.githubusercontent.com/117292926/214807734-ef283381-e979-440c-869e-850d383fa5cd.png)
 
+## Configuration
+The client will create a .tkm-chain folder and a JSON file (collect_tk_client_config_file.json) inside with the basic information needed to run it.
+```
+{
 
+    "baseUrlEndpoint":"http://localhost:8080",
+    "requireChallengeApi":"/requirechallenge",
+    "checkResultApi":"/checkresult",
+    "checkclaimingSolutionsApi":"/checkclamingsolutions",
+    "getHexTrxApi":"/gethextrx",
+    "updateClamingSolutionsApi":"/updateclaimsolutions",
+    "savePayTodoApi":"/savepaytodo"
+
+}
+```
